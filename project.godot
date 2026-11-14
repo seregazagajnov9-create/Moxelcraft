@@ -1,0 +1,12 @@
+config_version=5
+
+[application]
+config/name="VoxelCraft"
+run/main_scene="res://main.tscn"
+config/features=PackedStringArray("4.2", "Mobile")
+
+[input_devices]
+pointing/emulate_touch_from_mouse=true
+
+[rendering]
+renderer/rendering_method="mobile"
