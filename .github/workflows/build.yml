@@ -25,7 +25,7 @@ jobs:
           mkdir -p ~/.android
           keytool -genkey -v -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -dname "CN=Android Debug,O=Android,C=US" -keyalg RSA -keysize 2048 -validity 10000
 
-      - name: Create export preset
+      - name: Create export preset (Fixed Paths)
         run: |
           cat > export_presets.cfg << EOF
           [preset.0]
@@ -53,11 +53,17 @@ jobs:
           keystore/release="/root/.android/debug.keystore"
           keystore/release_user="androiddebugkey"
           keystore/release_password="android"
+          editor_settings/android_sdk_path="/opt/android-sdk"
+          editor_settings/java_sdk_path="/usr/lib/jvm/java-17-openjdk-amd64"
+          android/build_tools_version="33.0.2"
+          android/target_sdk_version="33"
           EOF
 
       - name: Build APK
         run: |
           mkdir -p build
+          export ANDROID_HOME=/opt/android-sdk
+          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
           godot --headless --path . --export-debug "Android" build/Moxelcraft.apk
 
       - name: Upload APK
