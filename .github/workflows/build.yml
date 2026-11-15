@@ -17,19 +17,19 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Download Godot
+      - name: Download Godot 4.3
         run: |
-          wget -q https://github.com/godotengine/godot/releases/download/4.2.2-stable/Godot_v4.2.2-stable_linux.x86_64.zip
-          unzip -q Godot_v4.2.2-stable_linux.x86_64.zip
-          mv Godot_v4.2.2-stable_linux.x86_64 godot
+          wget -q https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_linux.x86_64.zip
+          unzip -q Godot_v4.3-stable_linux.x86_64.zip
+          mv Godot_v4.3-stable_linux.x86_64 godot
           chmod +x godot
 
       - name: Download Export Templates
         run: |
-          wget -q https://github.com/godotengine/godot/releases/download/4.2.2-stable/Godot_v4.2.2-stable_export_templates.tpz
-          mkdir -p ~/.local/share/godot/export_templates/4.2.2.stable
-          unzip -q Godot_v4.2.2-stable_export_templates.tpz
-          mv templates/* ~/.local/share/godot/export_templates/4.2.2.stable/
+          wget -q https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_export_templates.tpz
+          mkdir -p ~/.local/share/godot/export_templates/4.3.stable
+          unzip -q Godot_v4.3-stable_export_templates.tpz
+          mv templates/* ~/.local/share/godot/export_templates/4.3.stable/
 
       - name: Download Android SDK
         run: |
@@ -47,22 +47,6 @@ jobs:
         run: |
           mkdir -p ~/.android
           keytool -genkey -v -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -dname "CN=Android Debug,O=Android,C=US" -keyalg RSA -keysize 2048 -validity 10000
-
-      - name: Setup Editor Settings (Valid .tres)
-        run: |
-          mkdir -p ~/.config/godot
-          cat > ~/.config/godot/editor_settings-4.tres << EOF
-          [gd_resource type="EditorSettings" format=3]
-          
-          [resource]
-          export/android/android_sdk_path = "$HOME/android-sdk"
-          export/android/debug_keystore = "$HOME/.android/debug.keystore"
-          export/android/debug_keystore_user = "androiddebugkey"
-          export/android/debug_keystore_pass = "android"
-          export/android/release_keystore = "$HOME/.android/debug.keystore"
-          export/android/release_keystore_user = "androiddebugkey"
-          export/android/release_keystore_pass = "android"
-          EOF
 
       - name: Create export preset
         run: |
@@ -92,11 +76,13 @@ jobs:
           keystore/release="$HOME/.android/debug.keystore"
           keystore/release_user="androiddebugkey"
           keystore/release_password="android"
+          android_sdk_path="$HOME/android-sdk"
           EOF
 
       - name: Build APK
         run: |
           mkdir -p build
+          export ANDROID_HOME=$HOME/android-sdk
           ./godot --headless --path . --export-debug "Android" build/Moxelcraft.apk
 
       - name: Upload APK
