@@ -31,7 +31,7 @@ jobs:
           unzip -q Godot_v4.2.2-stable_export_templates.tpz
           mv templates/* ~/.local/share/godot/export_templates/4.2.2.stable/
 
-      - name: Download Android SDK (Path fixed)
+      - name: Download Android SDK
         run: |
           mkdir -p $HOME/android-sdk/cmdline-tools
           cd $HOME/android-sdk/cmdline-tools
@@ -47,6 +47,22 @@ jobs:
         run: |
           mkdir -p ~/.android
           keytool -genkey -v -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -dname "CN=Android Debug,O=Android,C=US" -keyalg RSA -keysize 2048 -validity 10000
+
+      - name: Setup Editor Settings (Valid .tres)
+        run: |
+          mkdir -p ~/.config/godot
+          cat > ~/.config/godot/editor_settings-4.tres << EOF
+          [gd_resource type="EditorSettings" format=3]
+          
+          [resource]
+          export/android/android_sdk_path = "$HOME/android-sdk"
+          export/android/debug_keystore = "$HOME/.android/debug.keystore"
+          export/android/debug_keystore_user = "androiddebugkey"
+          export/android/debug_keystore_pass = "android"
+          export/android/release_keystore = "$HOME/.android/debug.keystore"
+          export/android/release_keystore_user = "androiddebugkey"
+          export/android/release_keystore_pass = "android"
+          EOF
 
       - name: Create export preset
         run: |
@@ -77,14 +93,6 @@ jobs:
           keystore/release_user="androiddebugkey"
           keystore/release_password="android"
           EOF
-
-      - name: Force Godot to see Android SDK
-        run: |
-          mkdir -p ~/.config/godot
-          # Создаем пустой файл, чтобы Godot не ругался
-          touch ~/.config/godot/editor_settings-4.tres
-          # Используем sed, чтобы Godot принудительно прочитал пути
-          sed -i '1i [resource]\nexport/android/android_sdk_path = "'$HOME'/android-sdk"\nexport/android/debug_keystore = "'$HOME'/.android/debug.keystore"\nexport/android/debug_keystore_user = "androiddebugkey"\nexport/android/debug_keystore_pass = "android"\nexport/android/release_keystore = "'$HOME'/.android/debug.keystore"\nexport/android/release_keystore_user = "androiddebugkey"\nexport/android/release_keystore_pass = "android"' ~/.config/godot/editor_settings-4.tres
 
       - name: Build APK
         run: |
